@@ -3,6 +3,7 @@
 import { useEffect, useId, useRef, useState } from "react"
 import { AlertCircle, ArrowLeft, Check, CheckCircle2, Flag, Loader2 } from "lucide-react"
 import { eventTypes, whatsappLink } from "@/data/site"
+import Link from "next/link"
 import { PREFILL_EVENT } from "@/lib/prefill"
 import { WhatsAppIcon } from "@/components/icons"
 
@@ -307,6 +308,7 @@ export function ContactForm({ activity, emailReady }: { activity?: string; email
         <button
           type="submit"
           disabled={sending}
+          aria-describedby={`${uid}-notice`}
           className={`group w-full !min-h-14 !text-lg ${emailReady ? "btn-ink" : "btn-wa"}`}
         >
           {sending ? (
@@ -326,11 +328,19 @@ export function ContactForm({ activity, emailReady }: { activity?: string; email
             </>
           )}
         </button>
-        <p className="mt-3 text-center text-[0.95rem] text-muted">
-          {emailReady
-            ? "הפרטים משמשים רק כדי לחזור אליכם."
-            : "ייפתח וואטסאפ עם הודעה מוכנה שכוללת את הפרטים. הם לא נשמרים באתר."}
-        </p>
+        {/* Notice at the point of collection: what is needed, what for, where it goes, and where to read more */}
+        <div id={`${uid}-notice`} className="mt-3 space-y-1 text-center text-[0.95rem] leading-snug text-muted">
+          <p>שם וטלפון נחוצים כדי שנוכל לחזור אליכם. שאר השדות לא חובה.</p>
+          <p>
+            {emailReady
+              ? "הפרטים נשלחים אלינו בדואר אלקטרוני, ומשמשים רק כדי לחזור אליכם עם הצעה, לא לפרסומות."
+              : "ייפתח וואטסאפ עם הודעה מוכנה שכוללת את הפרטים. האתר לא שומר אותם, והם משמשים רק כדי לחזור אליכם."}{" "}
+            <Link href="/privacy" target="_blank" rel="noopener" className="font-bold text-ink underline decoration-volt decoration-[3px] underline-offset-4">
+              מדיניות פרטיות
+              <span className="sr-only"> (נפתח בלשונית חדשה)</span>
+            </Link>
+          </p>
+        </div>
       </Station>
     </form>
   )

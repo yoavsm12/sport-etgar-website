@@ -89,7 +89,20 @@ export function Footer() {
           <p>
             © {new Date().getFullYear()} {site.legalName}
           </p>
-          <p>כפתור הנגישות נמצא בפינה הימנית התחתונה של המסך.</p>
+          <nav aria-label="מידע משפטי">
+            <ul className="flex flex-wrap gap-x-5 gap-y-1">
+              <li>
+                <Link href="/privacy" className="inline-block py-1 underline underline-offset-4 hover:text-volt">
+                  מדיניות פרטיות
+                </Link>
+              </li>
+              <li>
+                <Link href="/accessibility" className="inline-block py-1 underline underline-offset-4 hover:text-volt">
+                  הצהרת נגישות
+                </Link>
+              </li>
+            </ul>
+          </nav>
         </div>
       </div>
     </footer>

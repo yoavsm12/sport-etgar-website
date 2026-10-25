@@ -154,6 +154,16 @@
 .group:is(:hover, :focus-visible) .rig-icon .glow { fill: currentColor; }
 @keyframes rig-sway { from { transform: rotate(-8deg); } to { transform: rotate(8deg); } }
 
+/* Body text of the legal pages (components/legal.tsx) */
+.legal { font-size: 1.1rem; line-height: 1.75; color: rgb(21 20 15 / 0.88); }
+.legal h2 { font-family: var(--font-display); font-weight: 700; font-size: 2.1rem; line-height: 1; margin: 2.5rem 0 0.75rem; color: var(--color-ink); }
+.legal p { margin-top: 0.9rem; }
+.legal ul { margin-top: 0.9rem; padding-inline-start: 1.4rem; list-style: none; }
+.legal li { position: relative; margin-top: 0.5rem; }
+.legal li::before { content: ""; position: absolute; inset-inline-start: -1.25rem; top: 0.7em; width: 0.5rem; height: 0.5rem; background: var(--color-volt); box-shadow: 0 0 0 2px var(--color-ink); transform: rotate(45deg); }
+.legal a { font-weight: 700; color: var(--color-ink); text-decoration: underline; text-decoration-color: var(--color-volt); text-decoration-thickness: 3px; text-underline-offset: 4px; }
+.legal a:hover { background: var(--color-volt); }
+
 /* Small label that names the kind of place a photo was taken in */
 @utility place-tag {
   @apply inline-flex items-center gap-1.5 rounded-sm bg-ink px-2 py-1 text-[0.8rem] leading-none font-bold text-paper;

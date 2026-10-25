@@ -27,6 +27,8 @@ Each activity page lives at `/<id>`. Its chosen `highlights` are shown first wit
 
 Business details that still need confirming are listed in `CONTENT-TODO.md`.
 
+The privacy policy (`/privacy`) and accessibility statement (`/accessibility`) take their business details from `data/legal.ts`. A detail left as `null` is shown on the page as a highlighted "[להשלמה: ...]" marker, so fill them all in (and have the texts reviewed) before going live.
+
 ### Adding photos or videos
 
 1. Drop the files into the right `public/images/<folder>/`.
