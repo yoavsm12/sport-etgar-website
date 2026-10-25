@@ -1,6 +1,7 @@
 import Link from "next/link"
 import { ArrowLeft } from "lucide-react"
 import { handled } from "@/data/site"
+import { Rig } from "@/components/rig"
 
 /** What we take on, laid out along a truss beam, and the short list that is left for the organiser. */
 export function Handled() {
@@ -29,14 +30,17 @@ export function Handled() {
           </div>
         </div>
 
-        <ol className="relative mt-12 grid gap-8 md:mt-16 lg:grid-cols-4 lg:gap-6">
-          {/* the beam: horizontal on wide screens, vertical on narrow ones */}
-          <span className="truss absolute inset-x-0 top-[1.1rem] hidden lg:block" aria-hidden="true" />
-          <span className="truss-v absolute top-0 right-[0.6rem] bottom-0 lg:hidden" aria-hidden="true" />
+        <Rig className="relative mt-12 grid gap-8 md:mt-16 lg:grid-cols-4 lg:gap-6">
+          {/* The beam: horizontal on wide screens, vertical on narrow ones. A faint copy is always there; the solid copy is drawn as you scroll. */}
+          <span className="truss absolute inset-x-0 top-[1.1rem] hidden opacity-25 lg:block" aria-hidden="true" />
+          <span className="truss rig-draw-x absolute inset-x-0 top-[1.1rem] hidden lg:block" aria-hidden="true" />
+          <span className="truss-v absolute top-0 right-[0.6rem] bottom-0 opacity-25 lg:hidden" aria-hidden="true" />
+          <span className="truss-v rig-draw-y absolute top-0 right-[0.6rem] bottom-0 lg:hidden" aria-hidden="true" />
           {handled.steps.map((s, i) => (
             <li key={s.title} className="relative ps-14 lg:ps-0 lg:pt-14">
               <span
-                className="display absolute top-0 right-0 flex h-10 w-10 items-center justify-center rounded-sm bg-ink text-[1.7rem] text-volt lg:right-0"
+                data-rig-badge
+                className="rig-badge display absolute top-0 right-0 flex h-10 w-10 items-center justify-center rounded-sm bg-ink text-[1.7rem] text-volt"
                 aria-hidden="true"
               >
                 {i + 1}
@@ -49,7 +53,7 @@ export function Handled() {
               </p>
             </li>
           ))}
-        </ol>
+        </Rig>
 
         <div className="mt-12">
           <Link href="#contact" className="btn-ink group">

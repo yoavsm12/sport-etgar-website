@@ -127,6 +127,23 @@
   background-size: 18px 36px;
 }
 
+/*
+ * Scroll-built rig (components/rig.tsx sets --p and data-lit).
+ * The defaults are the finished state, so nothing is hidden without JavaScript or with reduced motion.
+ * The beam starts at the right edge (RTL), or at the top on narrow screens.
+ */
+.rig-draw-x { clip-path: inset(0 0 0 calc((1 - var(--p, 1)) * 100%)); }
+.rig-draw-y { clip-path: inset(0 0 calc((1 - var(--p, 1)) * 100%) 0); }
+.rig-badge {
+  transition: background-color 0.25s, color 0.25s, box-shadow 0.25s, transform 0.35s var(--ease-out-expo);
+}
+.rig-badge[data-lit="false"] {
+  background-color: var(--color-volt);
+  color: var(--color-ink);
+  box-shadow: inset 0 0 0 2px var(--color-ink);
+  transform: scale(0.88);
+}
+
 /* Small label that names the kind of place a photo was taken in */
 @utility place-tag {
   @apply inline-flex items-center gap-1.5 rounded-sm bg-ink px-2 py-1 text-[0.8rem] leading-none font-bold text-paper;
