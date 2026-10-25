@@ -4,6 +4,7 @@ import { activities } from "@/data/activities"
 import type { EventPathId } from "@/data/events"
 import { photoSet } from "@/lib/photo-set"
 import { Photo } from "@/components/photo"
+import { RigIcon } from "@/components/rig-icon"
 
 const pathShort: Record<EventPathId, string> = {
   corporate: "ימי גיבוש",
@@ -36,13 +37,19 @@ export function ActivityIndex() {
           {activities.map((a) => (
             <li key={a.id} className="border-b border-line">
               <Link href={`/${a.id}`} prefetch={false} className="group flex items-center gap-4 py-4 transition-colors hover:bg-volt/40 md:px-2">
-                <span className="relative h-20 w-20 shrink-0 overflow-hidden rounded-sm bg-ink-2 sm:h-24 sm:w-24">
-                  <Photo
-                    set={photoSet(a.cover)}
-                    alt=""
-                    sizes="96px"
-                    className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                  />
+                <span className="relative shrink-0">
+                  <span className="relative block h-20 w-20 overflow-hidden rounded-sm bg-ink-2 sm:h-24 sm:w-24">
+                    <Photo
+                      set={photoSet(a.cover)}
+                      alt=""
+                      sizes="96px"
+                      className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                  </span>
+                  {/* the rig, drawn as a tag clipped to the photo */}
+                  <span className="absolute -bottom-2 -left-2 flex h-10 w-10 items-center justify-center rounded-sm bg-ink text-volt ring-[3px] ring-card transition-colors group-hover:ring-volt/40">
+                    <RigIcon id={a.id} className="h-7 w-7" />
+                  </span>
                 </span>
                 <span className="min-w-0 flex-1">
                   <span className="display block text-[2rem] sm:text-[2.3rem]">{a.title}</span>

@@ -12,6 +12,7 @@ import { Gallery, type GalleryItem } from "@/components/gallery"
 import { Faq } from "@/components/faq"
 import { Contact } from "@/components/contact"
 import { WhatsAppIcon } from "@/components/icons"
+import { RigIcon } from "@/components/rig-icon"
 
 type Props = { params: Promise<{ activity: string }> }
 
@@ -94,6 +95,9 @@ export default async function ActivityPage({ params }: Props) {
 
           <div className="mt-6 grid gap-8 lg:grid-cols-[1fr_1.1fr] lg:items-center lg:gap-14">
             <div>
+              <span className="group mb-5 flex h-16 w-16 items-center justify-center rounded-sm bg-ink text-volt">
+                <RigIcon id={a.id} className="h-11 w-11" />
+              </span>
               <h1 id="activity-title" className="display text-[clamp(3.2rem,10vw,6.6rem)]">
                 {a.title}
               </h1>

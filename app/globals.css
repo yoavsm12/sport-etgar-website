@@ -144,6 +144,16 @@
   transform: scale(0.88);
 }
 
+/* Line drawings of the rigs (components/rig-icon.tsx): small movements when a parent `group` is hovered or focused */
+.rig-icon .sway { transform-box: fill-box; transform-origin: 50% 0; }
+.rig-icon .slide { transition: transform 0.9s var(--ease-out-expo); }
+.rig-icon .glow { transition: fill 0.3s; }
+.group:is(:hover, :focus-visible) .rig-icon .sway { animation: rig-sway 1.1s ease-in-out infinite alternate; }
+.group:is(:hover, :focus-visible) .rig-icon .sway-b { animation-delay: -0.55s; }
+.group:is(:hover, :focus-visible) .rig-icon .slide { transform: translate(18px, 8px); }
+.group:is(:hover, :focus-visible) .rig-icon .glow { fill: currentColor; }
+@keyframes rig-sway { from { transform: rotate(-8deg); } to { transform: rotate(8deg); } }
+
 /* Small label that names the kind of place a photo was taken in */
 @utility place-tag {
   @apply inline-flex items-center gap-1.5 rounded-sm bg-ink px-2 py-1 text-[0.8rem] leading-none font-bold text-paper;
