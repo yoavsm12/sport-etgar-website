@@ -33,7 +33,7 @@ The privacy policy (`/privacy`) and accessibility statement (`/accessibility`) t
 
 1. Drop the files into the right `public/images/<folder>/`.
 2. Run `npm run media`. It shrinks new photos and creates the 640px previews in `thumbs/` and 1280px versions in `large/` (videos need `ffmpeg` installed; add `--videos` to also re-encode them to 720p).
-3. Commit. Videos are stored with Git LFS (`git lfs install` once per machine). A copy without LFS has small pointer files instead of videos; the site skips those.
+3. Commit. Videos are stored with Git LFS (`git lfs install` once per machine). This repository was created without the original videos (the copy it started from only had empty LFS pointer files), so add them to `public/images/<folder>/` and commit. The site skips any pointer file, so a broken video never shows.
 
 ## Contact form
 
