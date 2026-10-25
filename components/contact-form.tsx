@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useId, useRef, useState } from "react"
-import { AlertCircle, ArrowLeft, CheckCircle2, Loader2 } from "lucide-react"
+import { AlertCircle, ArrowLeft, Check, CheckCircle2, Flag, Loader2 } from "lucide-react"
 import { eventTypes, whatsappLink } from "@/data/site"
 import { PREFILL_EVENT } from "@/lib/prefill"
 import { WhatsAppIcon } from "@/components/icons"
@@ -32,6 +32,7 @@ export function ContactForm({ activity, emailReady }: { activity?: string; email
   const [errors, setErrors] = useState<Errors>({})
   const [eventType, setEventType] = useState("")
   const [waHref, setWaHref] = useState("")
+  const [filled, setFilled] = useState({ details: false, contact: false })
   const startedAt = useRef(0)
   const form = useRef<HTMLFormElement>(null)
   const done = useRef<HTMLDivElement>(null)
@@ -50,6 +51,17 @@ export function ContactForm({ activity, emailReady }: { activity?: string; email
     done.current?.scrollIntoView({ block: "center" })
     done.current?.focus({ preventScroll: true })
   }, [status])
+
+  // Which stations of the route are complete, read from the form as people type
+  function sync() {
+    if (!form.current) return
+    const d = Object.fromEntries(new FormData(form.current)) as Record<string, string>
+    const has = (k: string) => Boolean(d[k]?.trim())
+    setFilled({
+      details: has("location") || has("date") || has("participants"),
+      contact: (d.name ?? "").trim().length >= 2 && PHONE.test((d.phone ?? "").trim()),
+    })
+  }
 
   function validate(d: Record<string, string>) {
     const next: Errors = {}
@@ -77,6 +89,7 @@ export function ContactForm({ activity, emailReady }: { activity?: string; email
 
     if (!emailReady) {
       window.open(wa, "_blank", "noopener,noreferrer")
+      setFilled({ details: false, contact: false })
       setStatus("whatsapp")
       return
     }
@@ -97,6 +110,7 @@ export function ContactForm({ activity, emailReady }: { activity?: string; email
       }
       el.reset()
       setEventType("")
+      setFilled({ details: false, contact: false })
       setStatus("sent")
     } catch {
       setError("אין חיבור לשרת.")
@@ -146,103 +160,126 @@ export function ContactForm({ activity, emailReady }: { activity?: string; email
       </p>
     ) : null
 
+  const ready = Boolean(eventType) && filled.details && filled.contact
+
   return (
-    <form ref={form} onSubmit={onSubmit} noValidate className="relative rounded-md bg-paper p-5 text-ink sm:p-8">
-      <fieldset>
-        <legend className="text-lg font-bold">איזה אירוע?</legend>
-        <div className="mt-3 grid gap-2 sm:grid-cols-2">
-          {eventTypes.map((t) => (
-            <label
-              key={t}
-              className="flex min-h-12 cursor-pointer items-center gap-3 rounded-md border-2 border-ink/55 bg-card px-3 py-2 leading-tight font-semibold transition-colors hover:border-ink/80 has-[:checked]:border-ink has-[:checked]:bg-volt has-[:focus-visible]:ring-4 has-[:focus-visible]:ring-ink/30"
-            >
-              <input
-                type="radio"
-                name="eventType"
-                value={t}
-                checked={eventType === t}
-                onChange={() => setEventType(t)}
-                className="h-5 w-5 shrink-0 accent-ink"
-              />
-              {t}
-            </label>
-          ))}
-        </div>
-      </fieldset>
+    <form
+      ref={form}
+      onSubmit={onSubmit}
+      onChange={sync}
+      onInput={sync}
+      noValidate
+      className="relative rounded-md bg-paper p-5 text-ink sm:p-8"
+    >
+      {/* The form is a short route: event, details, contact, send. The beam fills in as each station is done. */}
+      <Station n={1} done={Boolean(eventType)}>
+        <fieldset>
+          <legend className="text-lg font-bold">איזה אירוע?</legend>
+          <div className="mt-3 grid gap-2 sm:grid-cols-2">
+            {eventTypes.map((t) => (
+              <label
+                key={t}
+                className="flex min-h-12 cursor-pointer items-center gap-3 rounded-md border-2 border-ink/55 bg-card px-3 py-2 leading-tight font-semibold transition-colors hover:border-ink/80 has-[:checked]:border-ink has-[:checked]:bg-volt has-[:focus-visible]:ring-4 has-[:focus-visible]:ring-ink/30"
+              >
+                <input
+                  type="radio"
+                  name="eventType"
+                  value={t}
+                  checked={eventType === t}
+                  onChange={() => setEventType(t)}
+                  className="h-5 w-5 shrink-0 accent-ink"
+                />
+                {t}
+              </label>
+            ))}
+          </div>
+        </fieldset>
+      </Station>
 
       {activity && <input type="hidden" name="activity" value={activity} />}
 
-      <div className="mt-6 grid gap-x-4 gap-y-5 sm:grid-cols-2">
-        <div>
-          <label htmlFor={`${uid}-location`} className="mb-1.5 block font-bold">
-            איפה, בערך?
-          </label>
-          <input id={`${uid}-location`} name="location" maxLength={100} className="field" placeholder="עיר או אזור" />
+      <Station n={2} done={filled.details}>
+        <h3 className="text-lg font-bold">
+          פרטים על האירוע <span className="font-normal text-muted">(בערך זה בסדר)</span>
+        </h3>
+        <div className="mt-3 grid gap-x-4 gap-y-4 sm:grid-cols-2">
+          <div>
+            <label htmlFor={`${uid}-location`} className="mb-1.5 block font-bold">
+              איפה?
+            </label>
+            <input id={`${uid}-location`} name="location" maxLength={100} className="field" placeholder="עיר או אזור" />
+          </div>
+          <div>
+            <label htmlFor={`${uid}-date`} className="mb-1.5 block font-bold">
+              מתי?
+            </label>
+            <input id={`${uid}-date`} name="date" maxLength={60} className="field" placeholder="תאריך, גם אם משוער" />
+          </div>
+          <div className="sm:col-span-2">
+            <label htmlFor={`${uid}-participants`} className="mb-1.5 block font-bold">
+              כמה משתתפים, ובאילו גילאים?
+            </label>
+            <input
+              id={`${uid}-participants`}
+              name="participants"
+              maxLength={80}
+              className="field"
+              placeholder="למשל: כ-40 ילדים בני 12"
+            />
+          </div>
         </div>
-        <div>
-          <label htmlFor={`${uid}-date`} className="mb-1.5 block font-bold">
-            מתי?
-          </label>
-          <input id={`${uid}-date`} name="date" maxLength={60} className="field" placeholder="תאריך, גם אם משוער" />
-        </div>
-        <div className="sm:col-span-2">
-          <label htmlFor={`${uid}-participants`} className="mb-1.5 block font-bold">
-            כמה משתתפים, ובאילו גילאים?
-          </label>
-          <input
-            id={`${uid}-participants`}
-            name="participants"
-            maxLength={80}
-            className="field"
-            placeholder="למשל: כ-40 ילדים בני 12"
-          />
-        </div>
-        <div>
-          <label htmlFor={`${uid}-name`} className="mb-1.5 block font-bold">
-            שם <span className="font-normal text-muted">(חובה)</span>
-          </label>
-          <input
-            id={`${uid}-name`}
-            name="name"
-            maxLength={100}
-            autoComplete="name"
-            className="field"
-            aria-invalid={Boolean(errors.name)}
-            aria-describedby={errors.name ? `${uid}-name-err` : undefined}
-          />
-          {fieldError("name")}
-        </div>
-        <div>
-          <label htmlFor={`${uid}-phone`} className="mb-1.5 block font-bold">
-            טלפון לחזרה <span className="font-normal text-muted">(חובה)</span>
-          </label>
-          <input
-            id={`${uid}-phone`}
-            name="phone"
-            type="tel"
-            inputMode="tel"
-            autoComplete="tel"
-            maxLength={15}
-            dir="ltr"
-            className="field text-right"
-            placeholder="050-0000000"
-            aria-invalid={Boolean(errors.phone)}
-            aria-describedby={errors.phone ? `${uid}-phone-err` : undefined}
-          />
-          {fieldError("phone")}
-        </div>
-        <div className="sm:col-span-2">
-          <label htmlFor={`${uid}-message`} className="mb-1.5 block font-bold">
-            עוד משהו שכדאי שנדע? <span className="font-normal text-muted">(לא חובה)</span>
-          </label>
-          <textarea
-            id={`${uid}-message`}
-            name="message"
-            rows={3}
-            maxLength={2000}
-            className="field resize-y"
-            defaultValue={activity ? `מתעניינים ב${activity}. ` : undefined}
-          />
+      </Station>
+
+      <Station n={3} done={filled.contact}>
+        <h3 className="text-lg font-bold">איך נחזור אליכם?</h3>
+        <div className="mt-3 grid gap-x-4 gap-y-4 sm:grid-cols-2">
+          <div>
+            <label htmlFor={`${uid}-name`} className="mb-1.5 block font-bold">
+              שם <span className="font-normal text-muted">(חובה)</span>
+            </label>
+            <input
+              id={`${uid}-name`}
+              name="name"
+              maxLength={100}
+              autoComplete="name"
+              className="field"
+              aria-invalid={Boolean(errors.name)}
+              aria-describedby={errors.name ? `${uid}-name-err` : undefined}
+            />
+            {fieldError("name")}
+          </div>
+          <div>
+            <label htmlFor={`${uid}-phone`} className="mb-1.5 block font-bold">
+              טלפון לחזרה <span className="font-normal text-muted">(חובה)</span>
+            </label>
+            <input
+              id={`${uid}-phone`}
+              name="phone"
+              type="tel"
+              inputMode="tel"
+              autoComplete="tel"
+              maxLength={15}
+              dir="ltr"
+              className="field text-right"
+              placeholder="050-0000000"
+              aria-invalid={Boolean(errors.phone)}
+              aria-describedby={errors.phone ? `${uid}-phone-err` : undefined}
+            />
+            {fieldError("phone")}
+          </div>
+          <div className="sm:col-span-2">
+            <label htmlFor={`${uid}-message`} className="mb-1.5 block font-bold">
+              עוד משהו שכדאי שנדע? <span className="font-normal text-muted">(לא חובה)</span>
+            </label>
+            <textarea
+              id={`${uid}-message`}
+              name="message"
+              rows={3}
+              maxLength={2000}
+              className="field resize-y"
+              defaultValue={activity ? `מתעניינים ב${activity}. ` : undefined}
+            />
+          </div>
         </div>
         {/* Spam trap: hidden from people, bots tend to fill it */}
         <div aria-hidden="true" className="absolute -left-[9999px] h-0 w-0 overflow-hidden">
@@ -251,48 +288,87 @@ export function ContactForm({ activity, emailReady }: { activity?: string; email
             <input name="company" tabIndex={-1} autoComplete="off" />
           </label>
         </div>
-      </div>
+      </Station>
 
-      {status === "error" && (
-        <div role="alert" className="mt-6 rounded-md border-2 border-[#a3260f] bg-card p-4">
-          <p className="flex items-start gap-2 font-semibold text-[#a3260f]">
-            <AlertCircle className="mt-1 h-4 w-4 shrink-0" aria-hidden="true" />
-            {error} אפשר לשלוח את אותם פרטים בוואטסאפ או להתקשר.
-          </p>
-          <a href={waHref} target="_blank" rel="noopener noreferrer" className="btn-wa mt-3">
-            <WhatsAppIcon className="h-5 w-5" />
-            שליחת הפרטים בוואטסאפ
-          </a>
-        </div>
-      )}
-
-      <button
-        type="submit"
-        disabled={sending}
-        className={`group mt-7 w-full !min-h-14 !text-lg ${emailReady ? "btn-ink" : "btn-wa"}`}
-      >
-        {sending ? (
-          <>
-            <Loader2 className="h-5 w-5 animate-spin" aria-hidden="true" />
-            שולחים...
-          </>
-        ) : emailReady ? (
-          <>
-            שלחו, ונחזור עם הצעה
-            <ArrowLeft className="h-5 w-5 transition-transform group-hover:-translate-x-1" aria-hidden="true" />
-          </>
-        ) : (
-          <>
-            <WhatsAppIcon className="h-5 w-5" />
-            המשך לשליחה בוואטסאפ
-          </>
+      <Station n="finish" done={ready} last>
+        {status === "error" && (
+          <div role="alert" className="mb-5 rounded-md border-2 border-[#a3260f] bg-card p-4">
+            <p className="flex items-start gap-2 font-semibold text-[#a3260f]">
+              <AlertCircle className="mt-1 h-4 w-4 shrink-0" aria-hidden="true" />
+              {error} אפשר לשלוח את אותם פרטים בוואטסאפ או להתקשר.
+            </p>
+            <a href={waHref} target="_blank" rel="noopener noreferrer" className="btn-wa mt-3">
+              <WhatsAppIcon className="h-5 w-5" />
+              שליחת הפרטים בוואטסאפ
+            </a>
+          </div>
         )}
-      </button>
-      <p className="mt-3 text-center text-[0.95rem] text-muted">
-        {emailReady
-          ? "הפרטים משמשים רק כדי לחזור אליכם."
-          : "ייפתח וואטסאפ עם הודעה מוכנה שכוללת את הפרטים. הם לא נשמרים באתר."}
-      </p>
+
+        <button
+          type="submit"
+          disabled={sending}
+          className={`group w-full !min-h-14 !text-lg ${emailReady ? "btn-ink" : "btn-wa"}`}
+        >
+          {sending ? (
+            <>
+              <Loader2 className="h-5 w-5 animate-spin" aria-hidden="true" />
+              שולחים...
+            </>
+          ) : emailReady ? (
+            <>
+              שלחו, ונחזור עם הצעה
+              <ArrowLeft className="h-5 w-5 transition-transform group-hover:-translate-x-1" aria-hidden="true" />
+            </>
+          ) : (
+            <>
+              <WhatsAppIcon className="h-5 w-5" />
+              המשך לשליחה בוואטסאפ
+            </>
+          )}
+        </button>
+        <p className="mt-3 text-center text-[0.95rem] text-muted">
+          {emailReady
+            ? "הפרטים משמשים רק כדי לחזור אליכם."
+            : "ייפתח וואטסאפ עם הודעה מוכנה שכוללת את הפרטים. הם לא נשמרים באתר."}
+        </p>
+      </Station>
     </form>
+  )
+}
+
+/**
+ * One stop on the form's route: a numbered badge on a truss beam running down the start side.
+ * The badge fills in and the beam below it turns solid once the station is done.
+ * Purely visual: the fields inside carry all the meaning, so the markers are hidden from screen readers.
+ */
+function Station({
+  n,
+  done,
+  last = false,
+  children,
+}: {
+  n: number | "finish"
+  done: boolean
+  last?: boolean
+  children: React.ReactNode
+}) {
+  return (
+    <div className={`relative ps-12 sm:ps-14 ${last ? "" : "pb-7"}`}>
+      <span
+        className={`display absolute start-0 top-0 flex h-10 w-10 items-center justify-center rounded-sm text-[1.7rem] transition-colors duration-300 ${
+          done ? "bg-ink text-volt" : "bg-card text-ink ring-2 ring-ink/55 ring-inset"
+        }`}
+        aria-hidden="true"
+      >
+        {n === "finish" ? <Flag className="h-5 w-5" /> : done ? <Check className="h-5 w-5" strokeWidth={3} /> : n}
+      </span>
+      {!last && (
+        <span
+          className={`truss-v absolute start-[0.6rem] top-11 -bottom-1 transition-opacity duration-500 ${done ? "opacity-100" : "opacity-25"}`}
+          aria-hidden="true"
+        />
+      )}
+      {children}
+    </div>
   )
 }
