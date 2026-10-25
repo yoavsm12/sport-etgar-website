@@ -1,0 +1,6 @@
+# Files the Vercel CLI should not upload. Vercel installs dependencies and builds on its side.
+node_modules
+.next
+.env*
+!.env.example
+.claude

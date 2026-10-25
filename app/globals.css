@@ -1,0 +1,149 @@
+@import "tailwindcss";
+
+/*
+ * Palette taken from the gear itself: raw aluminium truss, black rigging,
+ * and the safety-yellow landing mats. Light "paper" base so the real photos carry the colour.
+ */
+@theme {
+  --color-paper: #f4f0e6;
+  --color-paper-2: #e9e3d3;
+  --color-card: #fffdf8;
+  --color-ink: #15140f;
+  --color-ink-2: #23211b;
+  --color-ink-3: #34312a;
+  --color-muted: #57524a;
+  --color-line: rgb(21 20 15 / 0.14);
+  --color-volt: #ffd21f;
+  --color-volt-deep: #e8b800;
+  --color-whatsapp: #15803d;
+  --color-whatsapp-deep: #116b34;
+
+  --font-sans: var(--font-assistant), "Assistant", system-ui, sans-serif;
+  --font-display: var(--font-karantina), "Karantina", var(--font-assistant), sans-serif;
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+
+  --animate-rise: rise 0.7s var(--ease-out-expo) both;
+
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(14px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 5.5rem;
+    -webkit-tap-highlight-color: transparent;
+  }
+  body {
+    @apply bg-paper text-ink font-sans antialiased;
+    font-size: 1.0625rem;
+    line-height: 1.6;
+  }
+  ::selection {
+    @apply bg-volt text-ink;
+  }
+  :focus-visible {
+    outline: 3px solid var(--color-ink);
+    outline-offset: 3px;
+    box-shadow: 0 0 0 6px var(--color-volt);
+    border-radius: 4px;
+  }
+  h1, h2, h3 {
+    text-wrap: balance;
+  }
+  p {
+    text-wrap: pretty;
+  }
+}
+
+@utility container-x {
+  @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8;
+}
+
+/* Display headings set in Karantina: tall, condensed, poster-like */
+@utility display {
+  font-family: var(--font-display);
+  font-weight: 700;
+  line-height: 0.92;
+  letter-spacing: 0;
+}
+
+@utility kicker {
+  @apply inline-flex items-center gap-2 text-[0.95rem] font-bold text-muted;
+  &::before {
+    content: "";
+    @apply inline-block h-3 w-3 shrink-0 bg-volt ring-2 ring-ink;
+    transform: rotate(45deg);
+  }
+}
+
+@utility btn {
+  @apply inline-flex min-h-12 items-center justify-center gap-2 rounded-md px-5 py-3 text-[1.05rem] font-bold transition-[background-color,color,border-color,transform] duration-200 select-none active:translate-y-px disabled:pointer-events-none disabled:opacity-60;
+}
+@utility btn-volt {
+  @apply btn bg-volt text-ink shadow-[0_2px_0_var(--color-ink)] ring-2 ring-ink hover:bg-volt-deep;
+}
+@utility btn-ink {
+  @apply btn bg-ink text-paper hover:bg-ink-3;
+}
+@utility btn-line {
+  @apply btn bg-transparent text-ink ring-2 ring-ink/80 hover:bg-ink hover:text-paper;
+}
+@utility btn-line-light {
+  @apply btn bg-transparent text-paper ring-2 ring-paper/50 hover:bg-paper hover:text-ink;
+}
+@utility btn-wa {
+  @apply btn bg-whatsapp text-white hover:bg-whatsapp-deep;
+}
+
+@utility field {
+  @apply min-h-12 w-full rounded-md border-2 border-ink/55 bg-card px-4 py-3 text-base text-ink transition-colors placeholder:text-muted hover:border-ink/80 focus:border-ink focus:outline-none;
+}
+
+/*
+ * The truss: the aluminium lattice beam every rig is built on.
+ * Used as a structural divider and as the "rig" photos hang from.
+ */
+@utility truss {
+  height: 18px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='36' height='18' viewBox='0 0 36 18'%3E%3Cg fill='none' stroke='%2315140f' stroke-width='2'%3E%3Cpath d='M0 1h36M0 17h36'/%3E%3Cpath d='M0 17L18 1l18 16' stroke-width='1.5'/%3E%3C/g%3E%3C/svg%3E");
+  background-repeat: repeat-x;
+  background-size: 36px 18px;
+}
+@utility truss-light {
+  height: 18px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='36' height='18' viewBox='0 0 36 18'%3E%3Cg fill='none' stroke='%23f4f0e6' stroke-opacity='.55' stroke-width='2'%3E%3Cpath d='M0 1h36M0 17h36'/%3E%3Cpath d='M0 17L18 1l18 16' stroke-width='1.5'/%3E%3C/g%3E%3C/svg%3E");
+  background-repeat: repeat-x;
+  background-size: 36px 18px;
+}
+/* Vertical version, for the step timeline on narrow screens */
+@utility truss-v {
+  width: 18px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='36' viewBox='0 0 18 36'%3E%3Cg fill='none' stroke='%2315140f' stroke-width='2'%3E%3Cpath d='M1 0v36M17 0v36'/%3E%3Cpath d='M17 0L1 18l16 18' stroke-width='1.5'/%3E%3C/g%3E%3C/svg%3E");
+  background-repeat: repeat-y;
+  background-size: 18px 36px;
+}
+
+/* Small label that names the kind of place a photo was taken in */
+@utility place-tag {
+  @apply inline-flex items-center gap-1.5 rounded-sm bg-ink px-2 py-1 text-[0.8rem] leading-none font-bold text-paper;
+}
+
+@utility no-scrollbar {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
